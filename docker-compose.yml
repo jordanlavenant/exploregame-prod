@@ -1,0 +1,80 @@
+services:
+  reverse-proxy:
+    image: traefik:v3.3
+    command:
+      - --api.insecure=true
+      - --providers.docker=true
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:9000
+      - --accesslog=true
+    ports:
+      - "80:80"
+      - "8080:8080"
+    networks:
+      - traefik-public
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+  db:
+    image: postgres:16-bookworm
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ExploreGame
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    networks:
+      - traefik-public
+
+  api:
+    image: jordaaaaaan/exploregame-core-api:latest
+    ports:
+      - '8911:8911'
+    networks:
+      - traefik-public
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/ExploreGame
+      - TEST_DATABASE_URL=postgresql://postgres:postgres@db:5432/ExploreGame_test
+      - SESSION_SECRET=super_secret_session_key_change_me_in_production_please
+    depends_on:
+      - db
+
+  web:
+    image: jordaaaaaan/exploregame-core-web:latest
+    ports:
+      - '8910:8910'
+    networks:
+      - traefik-public
+    depends_on:
+      - api
+    environment:
+      - API_PROXY_TARGET=http://api:8911
+
+  console:
+    user: root
+    image: jordaaaaaan/exploregame-core-console:latest
+    tmpfs:
+      - /tmp
+    command: tail -f /dev/null
+    networks:
+      - traefik-public
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/ExploreGame
+      - TEST_DATABASE_URL=postgresql://postgres:postgres@db:5432/ExploreGame_test
+    depends_on:
+      - db
+
+networks:
+  traefik-public:
+    external: true
+
+volumes:
+  postgres:
