@@ -1,2 +1,7 @@
+# Existing entries
 postgres/
 certs/
+
+# Add these entries
+*.pem
+*.key
