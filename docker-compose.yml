@@ -5,13 +5,9 @@ services:
       - --api.insecure=true
       - --providers.docker=true
       - --entrypoints.web.address=:80
-      - --entrypoints.websecure.address=:443
-      - --entrypoints.websecure.http.tls=true
-      - --providers.file.directory=/etc/traefik/dynamic
       - --accesslog=true
     ports:
       - "80:80"
-      - "443:443"
       - "8080:8080"
     networks:
       - traefik-public
@@ -23,8 +19,6 @@ services:
           - node.role == manager
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./certs:/etc/traefik/certs:ro
-      - ./traefik-dynamic-conf:/etc/traefik/dynamic:ro
 
   db:
     image: postgres:16-bookworm
@@ -51,11 +45,6 @@ services:
       - SESSION_SECRET=super_secret_session_key_change_me_in_production_please
     depends_on:
       - db
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.api.rule=Host(`api.jordanlavenant.fr`)"
-      - "traefik.http.routers.api.entrypoints=websecure"
-      - "traefik.http.routers.api.tls=true"
 
   web:
     image: jordaaaaaan/exploregame-core-web:latest
@@ -67,11 +56,6 @@ services:
       - api
     environment:
       - API_PROXY_TARGET=http://api:8911
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.api.rule=Host(`web.jordanlavenant.fr`)"
-      - "traefik.http.routers.web.entrypoints=websecure"
-      - "traefik.http.routers.web.tls=true"
 
   console:
     user: root
