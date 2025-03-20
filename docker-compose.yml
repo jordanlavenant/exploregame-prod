@@ -51,6 +51,7 @@ services:
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/ExploreGame
       - TEST_DATABASE_URL=postgresql://postgres:postgres@db:5432/ExploreGame_test
       - SESSION_SECRET=
+      - APP_DOMAIN=jordanlavenant.fr
     depends_on:
       - db
     labels:
