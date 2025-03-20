@@ -5,3 +5,5 @@ certs/
 # Add these entries
 *.pem
 *.key
+
+.env

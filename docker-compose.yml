@@ -50,8 +50,7 @@ services:
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/ExploreGame
       - TEST_DATABASE_URL=postgresql://postgres:postgres@db:5432/ExploreGame_test
-      - SESSION_SECRET=
-      - APP_DOMAIN=jordanlavenant.fr
+      - SESSION_SECRET=<SESSION_SECRET change me in production please>
     depends_on:
       - db
     labels:
@@ -71,8 +70,7 @@ services:
     depends_on:
       - api
     environment:
-      # - API_PROXY_TARGET=http://api:8911
-      - API_PROXY_TARGET=https://api.jordanlavenant.fr
+      - API_PROXY_TARGET=http://api:8911 # Ici on met http car on est dans le même réseau (pas https)
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.web.rule=Host(`admin.jordanlavenant.fr`)"
@@ -93,6 +91,22 @@ services:
       - TEST_DATABASE_URL=postgresql://postgres:postgres@db:5432/ExploreGame_test
     depends_on:
       - db
+
+  client:
+    image: jordaaaaaan/exploregame-client:latest
+    # container_name: eg_client
+    environment:
+      NODE_ENV: production
+    env_file:
+      - .env
+    networks:
+      - eg-public
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.web.rule=Host(`client.jordanlavenant.fr`)"
+      - "traefik.http.routers.web.entrypoints=websecure"
+      - "traefik.http.routers.web.tls.certresolver=myresolver"
+      - "traefik.http.services.web.loadbalancer.server.port=8920"
 
 networks:
   traefik-public:
