@@ -85,6 +85,7 @@ services:
       - /tmp
     command: tail -f /dev/null
     networks:
+      - traefik-public
       - eg-public
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/ExploreGame
@@ -95,6 +96,8 @@ services:
   client:
     image: jordaaaaaan/exploregame-client:latest
     # container_name: eg_client
+    ports:
+      - '8920:8920'
     environment:
       NODE_ENV: production
     env_file:
@@ -103,10 +106,10 @@ services:
       - eg-public
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.web.rule=Host(`client.jordanlavenant.fr`)"
-      - "traefik.http.routers.web.entrypoints=websecure"
-      - "traefik.http.routers.web.tls.certresolver=myresolver"
-      - "traefik.http.services.web.loadbalancer.server.port=8920"
+      - "traefik.http.routers.client.rule=Host(`client.jordanlavenant.fr`)"
+      - "traefik.http.routers.client.entrypoints=websecure"
+      - "traefik.http.routers.client.tls.certresolver=myresolver"
+      - "traefik.http.services.client.loadbalancer.server.port=8920"
 
 networks:
   traefik-public:
