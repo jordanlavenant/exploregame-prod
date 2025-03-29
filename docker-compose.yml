@@ -51,6 +51,7 @@ services:
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/ExploreGame
       - TEST_DATABASE_URL=postgresql://postgres:postgres@db:5432/ExploreGame_test
       - SESSION_SECRET=<SESSION_SECRET change me in production please>
+      - APP_DOMAIN=<APP_DOMAIN change me in production please>
     depends_on:
       - db
     labels:
@@ -95,21 +96,21 @@ services:
 
   client:
     image: jordaaaaaan/exploregame-client:latest
-    # container_name: eg_client
     ports:
-      - '8920:8920'
+      - '8920:3000' # On expose le port 3000 du container sur le port 8920 de la machine
     environment:
       NODE_ENV: production
     env_file:
       - .env
     networks:
+      - traefik-public
       - eg-public
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.client.rule=Host(`client.jordanlavenant.fr`)"
       - "traefik.http.routers.client.entrypoints=websecure"
       - "traefik.http.routers.client.tls.certresolver=myresolver"
-      - "traefik.http.services.client.loadbalancer.server.port=8920"
+      - "traefik.http.services.client.loadbalancer.server.port=3000"
 
 networks:
   traefik-public:
