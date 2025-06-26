@@ -7,7 +7,7 @@ services:
       - --providers.docker.network=traefik-public
       - --entrypoints.web.address=:80
       - --entrypoints.websecure.address=:443
-      - --certificatesresolvers.myresolver.acme.email=jordan.lavenant.pro@gmail.com
+      - --certificatesresolvers.myresolver.acme.email=<YOUR_EMAIL_HERE>
       - --certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json
       - --certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web
       - --accesslog=true
@@ -56,7 +56,7 @@ services:
       - db
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.api.rule=Host(`api.jordanlavenant.fr`)"
+      - "traefik.http.routers.api.rule=Host(`<API DOMAIN>`)"
       - "traefik.http.routers.api.entrypoints=websecure"
       - "traefik.http.routers.api.tls.certresolver=myresolver"
       - "traefik.http.services.api.loadbalancer.server.port=8911"
@@ -71,10 +71,10 @@ services:
     depends_on:
       - api
     environment:
-      - API_PROXY_TARGET=http://api:8911 # Ici on met http car on est dans le même réseau (pas https)
+      - API_PROXY_TARGET=http://api:8911
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.web.rule=Host(`admin.jordanlavenant.fr`)"
+      - "traefik.http.routers.web.rule=Host(`<CORE DOMAIN (UI)>`)"
       - "traefik.http.routers.web.entrypoints=websecure"
       - "traefik.http.routers.web.tls.certresolver=myresolver"
       - "traefik.http.services.web.loadbalancer.server.port=8910"
@@ -107,7 +107,7 @@ services:
       - eg-public
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.client.rule=Host(`client.jordanlavenant.fr`)"
+      - "traefik.http.routers.client.rule=Host(`<CLIENT DOMAIN>`)"
       - "traefik.http.routers.client.entrypoints=websecure"
       - "traefik.http.routers.client.tls.certresolver=myresolver"
       - "traefik.http.services.client.loadbalancer.server.port=3000"
